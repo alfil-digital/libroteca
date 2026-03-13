@@ -1,28 +1,25 @@
 # Usamos la imagen oficial de PHP 8.3 con Apache
 FROM php:8.3-apache
 
-# 1. Instalar dependencias del sistema y extensiones de PHP para MySQL/Laravel
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# ... (Instalación de dependencias del sistema y extensiones)
 
-# 2. Habilitar el módulo rewrite de Apache (vital para las rutas de Laravel)
-RUN a2enmod rewrite
+# 1. Copiar solo los archivos de composer primero (esto ayuda a la caché de Docker)
+COPY composer.json composer.lock ./
 
+# 2. Instalar paquetes sin ejecutar scripts ni generar el autoloader pesado
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --no-interaction
 
-
-# 3. Instalar Composer desde la imagen oficial
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# 4. Configurar el directorio de trabajo
-WORKDIR /var/www/html
+# 3. Copiar el resto del código del proyecto
 COPY . .
+
+# 4. Generar el autoloader optimizado como un paso final y separado
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --no-interaction
+
+# ... (Configuración de Apache y permisos)
 
 # 5. Ajustar el DocumentRoot de Apache para que apunte a /public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
