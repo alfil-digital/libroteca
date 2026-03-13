@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
 # 2. Habilitar el módulo rewrite de Apache (vital para las rutas de Laravel)
 RUN a2enmod rewrite
 
+
+
 # 3. Instalar Composer desde la imagen oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -28,7 +30,8 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 # 6. Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader
+# Instalamos dependencias con límite de memoria liberado
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction
 
 # 7. Dar permisos de escritura a las carpetas de Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
