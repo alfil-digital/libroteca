@@ -1,7 +1,5 @@
+// Importación del archivo de configuración inicial (axios, etc.)
 import './bootstrap';
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+// Importación del JavaScript de Bootstrap para funcionalidades interactivas
+import 'bootstrap';
