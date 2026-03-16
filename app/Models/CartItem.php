@@ -13,8 +13,9 @@ class CartItem extends Model
      * Atributos que pueden ser llenados masivamente.
      */
     protected $fillable = [
-        'cart_id', // Enlace al carrito de compras
-        'book_id', // Enlace al libro añadido al carrito
+        'cart_id',       // Enlace al carrito de compras
+        'sellable_id',   // ID del producto (libro o curso)
+        'sellable_type', // Tipo de producto asociado
     ];
 
     /**
@@ -26,10 +27,10 @@ class CartItem extends Model
     }
 
     /**
-     * Relación con el modelo Book (muchos a uno).
+     * Relación polimórfica (puede ser Book o Course).
      */
-    public function book()
+    public function sellable()
     {
-        return $this->belongsTo(Book::class); // El ítem se refiere a un libro específico
+        return $this->morphTo(); // Permite referenciar cualquier modelo 'sellable'
     }
 }

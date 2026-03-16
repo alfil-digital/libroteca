@@ -43,19 +43,19 @@ class Book extends Model
     }
 
     /**
-     * Relación con el modelo OrderItem (uno a muchos).
+     * Relación con el modelo OrderItem (uno a muchos polimórfico).
      */
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class); // Un libro puede estar en varios ítems de pedido
+        return $this->morphMany(OrderItem::class, 'sellable'); // Un libro puede estar en varios ítems de pedido
     }
 
     /**
-     * Relación con el modelo CartItem (uno a muchos).
+     * Relación con el modelo CartItem (uno a muchos polimórfico).
      */
     public function cartItems()
     {
-        return $this->hasMany(CartItem::class); // Un libro puede estar en múltiples carritos
+        return $this->morphMany(CartItem::class, 'sellable'); // Un libro puede estar en múltiples carritos
     }
 
     /**
@@ -64,5 +64,21 @@ class Book extends Model
     public function downloads()
     {
         return $this->hasMany(Download::class); // Un libro puede tener muchos registros de descarga
+    }
+
+    /**
+     * Relación con el modelo Rating (polimórfica uno a muchos).
+     */
+    public function ratings()
+    {
+        return $this->morphMany(Rating::class, 'rateable');
+    }
+
+    /**
+     * Calcula el promedio de estrellas de las valoraciones.
+     */
+    public function averageRating()
+    {
+        return $this->ratings()->avg('stars') ?: 0;
     }
 }

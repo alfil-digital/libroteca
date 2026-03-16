@@ -50,53 +50,79 @@
                 </div>
             </div>
 
-            <!-- Grilla de Libros -->
+            <!-- Grilla de Productos -->
             <div class="col-md-9">
-                @if($books->isEmpty())
+                @if($items->isEmpty())
                     <div class="card shadow-sm border-0 text-center py-5">
                         <div class="card-body">
-                            <i class="bi bi-journal-x display-1 text-muted"></i>
-                            <h4 class="mt-3 text-secondary">No se encontraron libros</h4>
+                            <i class="bi bi-box-seam display-1 text-muted"></i>
+                            <h4 class="mt-3 text-secondary">No se encontraron productos</h4>
                             <p class="text-muted">Prueba con otros términos de búsqueda o categorías.</p>
                             <a href="{{ route('dashboard') }}" class="btn btn-primary rounded-pill px-4">Ver todos</a>
                         </div>
                     </div>
                 @else
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        @foreach($books as $book)
+                        @foreach($items as $item)
+                            @php
+                                $isBook = $item instanceof \App\Models\Book;
+                                $typeLabel = $isBook ? 'Libro' : 'Curso en Video';
+                                $typeClass = $isBook ? 'bg-secondary' : 'bg-primary';
+                                $iconClass = $isBook ? 'bi-book' : 'bi-play-btn';
+                                $detailRoute = $isBook ? route('books.show', $item) : route('courses.show', $item);
+                            @endphp
                             <div class="col">
                                 <div class="card h-100 shadow-sm border-0 card-hover transition">
-                                    <div class="position-absolute p-2" style="z-index: 1;">
-                                        <span class="badge bg-primary rounded-pill small">{{ $book->category->name }}</span>
+                                    <div class="position-absolute p-2 d-flex flex-column gap-1" style="z-index: 1;">
+                                        <span class="badge bg-dark rounded-pill small">{{ $item->category->name ?? 'General' }}</span>
+                                        <span class="badge {{ $typeClass }} rounded-pill small"><i class="bi {{ $iconClass }} me-1"></i>{{ $typeLabel }}</span>
                                     </div>
 
                                     <!-- Imagen de Portada -->
-                                    <div class="bg-light text-center rounded-top overflow-hidden d-flex align-items-center justify-content-center"
-                                        style="height: 220px;">
-                                        @if($book->cover_path)
-                                            <img src="{{ asset('storage/' . $book->cover_path) }}"
-                                                alt="{{ $book->title }}" class="w-100 h-100 object-fit-cover shadow-sm">
-                                        @else
-                                            <i class="bi bi-book text-muted display-4"></i>
-                                        @endif
-                                    </div>
+                                    <a href="{{ $detailRoute }}" class="text-decoration-none">
+                                        <div class="bg-light text-center rounded-top overflow-hidden d-flex align-items-center justify-content-center"
+                                            style="height: 220px;">
+                                            @if($item->cover_path)
+                                                <img src="{{ asset('storage/' . $item->cover_path) }}"
+                                                    alt="{{ $item->title }}" class="w-100 h-100 object-fit-cover shadow-sm">
+                                            @else
+                                                <i class="bi {{ $iconClass }} text-muted display-4"></i>
+                                            @endif
+                                        </div>
+                                    </a>
 
                                     <div class="card-body p-4 d-flex flex-column">
-                                        <h5 class="card-title fw-bold text-dark mb-1">{{ $book->title }}</h5>
+                                        <a href="{{ $detailRoute }}" class="text-decoration-none text-dark">
+                                            <h5 class="card-title fw-bold mb-1">{{ $item->title }}</h5>
+                                        </a>
                                         <p class="card-text text-secondary small mb-3">
-                                            Por: <span class="fw-bold">{{ $book->author->name }}</span>
+                                            Por: <a href="{{ route('authors.show_public', $item->author) }}" class="fw-bold text-primary text-decoration-none">{{ $item->author->name ?? 'N/A' }}</a>
                                         </p>
 
                                         <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
-                                            <span class="fs-4 fw-bold text-success">${{ number_format($book->price, 2) }}</span>
+                                            @php
+                                                $isBook = get_class($item) === 'App\Models\Book';
+                                                $userHasAccess = Auth::check() && ($isBook ? Auth::user()->hasPurchasedBook($item) : Auth::user()->hasPurchasedCourse($item));
+                                            @endphp
 
-                                            <form action="{{ route('cart.add', $book) }}" method="POST">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
-                                                    <i class="bi bi-cart-plus me-1"></i> Comprar
-                                                </button>
-                                            </form>
+                                            @if($userHasAccess)
+                                                <a href="{{ $isBook ? route('download.book', $item) : route('courses.watch', $item) }}" 
+                                                   class="btn btn-primary btn-sm rounded-pill w-100 fw-bold">
+                                                    {{ $isBook ? 'Leer Ahora' : 'Ver Ahora' }}
+                                                </a>
+                                            @else
+                                                <div class="d-flex justify-content-between align-items-center w-100">
+                                                    <span class="fw-bold text-success fs-5">${{ number_format($item->price, 2) }}</span>
+                                                    <form action="{{ route('cart.add') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="sellable_id" value="{{ $item->id }}">
+                                                        <input type="hidden" name="sellable_type" value="{{ get_class($item) }}">
+                                                        <button type="submit" class="btn btn-outline-success btn-sm rounded-circle p-2" title="Al Carrito">
+                                                            <i class="bi bi-cart-plus-fill"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +132,7 @@
 
                     <!-- Paginación -->
                     <div class="mt-4 d-flex justify-content-center">
-                        {{ $books->links() }}
+                        {{ $items->links() }}
                     </div>
                 @endif
             </div>

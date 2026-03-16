@@ -20,7 +20,7 @@ class BookController extends Controller
             $books = Book::with(['author', 'category'])->paginate(10);
             return view('books.index', compact('books'));
         } else {
-            return view('dashboard');
+            return redirect()->route('dashboard');
         }
 
     }

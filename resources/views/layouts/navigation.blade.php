@@ -22,33 +22,19 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold border-bottom border-primary' : '' }}"
                         href="{{ route('dashboard') }}">
-                        {{ __('Catalogo') }} <!-- Enlace al Panel de Control -->
+                        <i class="bi bi-shop me-1"></i> {{ __('Catálogo') }}
                     </a>
                 </li>
+                
+                @if(auth()->check() && auth()->user()->hasRole('administrador'))
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('users.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
-                        href="{{ route('users.index') }}">
-                        {{ __('Usuarios') }} <!-- Enlace a la Gestión de Usuarios -->
+                    <a class="nav-link {{ request()->routeIs('admin.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
+                        href="{{ route('admin.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-1"></i> {{ __('Administración') }}
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('roles.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
-                        href="{{ route('roles.index') }}">
-                        {{ __('Roles') }} <!-- Enlace a la Gestión de Usuarios -->
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('books.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
-                        href="{{ route('books.index') }}">
-                        {{ __('Libros') }} <!-- Enlace a la Gestión de Libros -->
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('categories.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
-                        href="{{ route('categories.index') }}">
-                        {{ __('Categorías') }} <!-- Enlace a la Gestión de Categorías -->
-                    </a>
-                </li>
+                @endif
+
                 <li class="nav-item">
                     <a class="nav-link d-flex align-items-center {{ request()->routeIs('cart.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
                         href="{{ route('cart.index') }}">

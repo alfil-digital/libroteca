@@ -60,6 +60,24 @@ class User extends Authenticatable
     }
 
     /**
+     * Verifica si el usuario ha comprado un curso en video específico.
+     * 
+     * @param \App\Models\Course $course
+     * @return bool
+     */
+    public function hasPurchasedCourse(Course $course): bool
+    {
+        return $this->orders()
+            ->whereHas('orderItems', function ($query) use ($course) {
+                // Filtramos aquellos orderItems polimórficos que apuntan a nuestro curso
+                $query->where('sellable_type', Course::class)
+                      ->where('sellable_id', $course->id);
+            })
+            // Podrías añadir condiciones como: ->where('status', 'completed')
+            ->exists();
+    }
+
+    /**
      * Relación con el modelo Cart (uno a uno).
      */
     public function cart()

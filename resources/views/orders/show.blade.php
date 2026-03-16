@@ -30,17 +30,35 @@
                                 </thead>
                                 <tbody>
                                     @foreach($order->orderItems as $item)
+                                        @php
+                                            // Guard for missing sellables
+                                            if(!$item->sellable) continue;
+                                            
+                                            $isBook = $item->sellable_type === 'App\Models\Book';
+                                        @endphp
                                         <tr>
-                                            <td class="ps-4 fw-bold">{{ $item->book->title }}</td>
-                                            <td class="text-secondary">{{ $item->book->author->name }}</td>
+                                            <td class="ps-4 fw-bold">
+                                                {{ $item->sellable->title }}
+                                                @if(!$isBook)
+                                                    <span class="badge bg-primary rounded-pill ms-2 small">Curso en Video</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-secondary">{{ $item->sellable->author->name ?? 'N/A' }}</td>
                                             <td class="text-end pe-4 fw-bold text-primary">
                                                 ${{ number_format($item->unit_price, 2) }}
                                             </td>
                                             <td class="text-center">
-                                                <!-- Enlace de descarga segura -->
-                                                <a href="{{ route('download.book', $item->book) }}" class="btn btn-success btn-sm rounded-circle shadow-sm" title="Descargar Libro">
-                                                    <i class="bi bi-download"></i>
-                                                </a>
+                                                @if($isBook)
+                                                    <!-- Enlace de descarga segura -->
+                                                    <a href="{{ route('download.book', $item->sellable_id) }}" class="btn btn-success btn-sm rounded-circle shadow-sm" title="Descargar Libro">
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+                                                @else
+                                                    <!-- Enlace para ver el video -->
+                                                    <a href="{{ route('courses.watch', $item->sellable_id) }}" class="btn btn-primary btn-sm rounded-circle shadow-sm" title="Ver Video">
+                                                        <i class="bi bi-play-circle-fill"></i>
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

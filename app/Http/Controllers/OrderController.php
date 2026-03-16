@@ -17,7 +17,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('user_id', Auth::id())
-            ->with('orderItems.book')
+            ->with('orderItems.sellable')
             ->orderBy('order_date', 'desc')
             ->paginate(10);
 
@@ -34,7 +34,7 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $order->load('orderItems.book.author');
+        $order->load('orderItems.sellable');
 
         return view('orders.show', compact('order'));
     }
@@ -44,7 +44,7 @@ class OrderController extends Controller
      */
     public function store()
     {
-        $cart = Cart::where('user_id', Auth::id())->with('cartItems.book')->first();
+        $cart = Cart::where('user_id', Auth::id())->with('cartItems.sellable')->first();
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
@@ -55,7 +55,10 @@ class OrderController extends Controller
 
             $total = 0;
             foreach ($cart->cartItems as $item) {
-                $total += $item->book->price;
+                // $item->sellable gives us either Book or Course
+                if ($item->sellable) {
+                    $total += $item->sellable->price;
+                }
             }
 
             // Crear el Pedido
@@ -68,11 +71,14 @@ class OrderController extends Controller
 
             // Crear los Ítems del Pedido
             foreach ($cart->cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'book_id' => $item->book_id,
-                    'unit_price' => $item->book->price,
-                ]);
+                if ($item->sellable) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'sellable_id' => $item->sellable_id,
+                        'sellable_type' => $item->sellable_type,
+                        'unit_price' => $item->sellable->price,
+                    ]);
+                }
             }
 
             // Vaciar el Carrito
@@ -80,7 +86,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.show', $order)->with('success', '¡Compra realizada con éxito! Ya puedes descargar tus libros.');
+            return redirect()->route('orders.show', $order)->with('success', '¡Compra realizada con éxito!');
 
         } catch (\Exception $e) {
             DB::rollBack();

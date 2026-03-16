@@ -13,9 +13,10 @@ class OrderItem extends Model
      * Atributos asignables masivamente.
      */
     protected $fillable = [
-        'order_id',   // Referencia al pedido padre
-        'book_id',    // Referencia al libro comprado
-        'unit_price', // Precio del libro en el momento de la compra
+        'order_id',      // Referencia al pedido padre
+        'sellable_id',   // ID del producto comprado
+        'sellable_type', // Tipo de modelo del producto
+        'unit_price',    // Precio en el momento de la compra
     ];
 
     /**
@@ -27,10 +28,10 @@ class OrderItem extends Model
     }
 
     /**
-     * Relación con el modelo Book (muchos a uno).
+     * Relación polimórfica (puede ser Book o Course).
      */
-    public function book()
+    public function sellable()
     {
-        return $this->belongsTo(Book::class); // El ítem se refiere a un libro específico
+        return $this->morphTo(); // Permite referenciar cualquier modelo 'sellable'
     }
 }

@@ -46,6 +46,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Fusionar el carrito de invitado con el de usuario recién registrado
+        \App\Models\Cart::mergeSessionCart($user->id);
+
         return redirect(RouteServiceProvider::HOME);
     }
 }

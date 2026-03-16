@@ -11,80 +11,133 @@ use Illuminate\Support\Facades\Auth;
 class CartController extends Controller
 {
     /**
-     * Muestra el contenido del carrito del usuario.
+     * Muestra el contenido del carrito (de BD si está autenticado, de sesión si es invitado).
      */
     public function index()
     {
-        // Obtenemos el carrito del usuario con sus ítems y los detalles de los libros
-        $cart = Cart::where('user_id', Auth::id())->with('cartItems.book.author')->first();
-
-        // Calculamos el total
+        $items = [];
         $total = 0;
-        if ($cart) {
-            foreach ($cart->cartItems as $item) {
-                $total += $item->book->price;
+
+        if (Auth::check()) {
+            // Lógica para usuario autenticado (Base de Datos)
+            $cart = Cart::where('user_id', Auth::id())->with('cartItems.sellable.author')->first();
+            if ($cart) {
+                foreach ($cart->cartItems as $dbItem) {
+                    if ($dbItem->sellable) {
+                        $items[] = (object)[
+                            'id' => $dbItem->id, // ID del CartItem para borrar
+                            'sellable_id' => $dbItem->sellable_id,
+                            'sellable_type' => $dbItem->sellable_type,
+                            'sellable' => $dbItem->sellable,
+                        ];
+                        $total += $dbItem->sellable->price;
+                    }
+                }
+            }
+        } else {
+            // Lógica para invitado (Sesión)
+            $sessionCart = session()->get('cart', []);
+            foreach ($sessionCart as $index => $item) {
+                $model = $item['sellable_type']::find($item['sellable_id']);
+                if ($model) {
+                    $items[] = (object)[
+                        'id' => $index, // Usamos el índice del array para borrar
+                        'sellable_id' => $item['sellable_id'],
+                        'sellable_type' => $item['sellable_type'],
+                        'sellable' => $model,
+                    ];
+                    $total += $model->price;
+                }
             }
         }
 
-        return view('cart.index', compact('cart', 'total'));
+        return view('cart.index', compact('items', 'total'));
     }
 
     /**
-     * Añade un libro al carrito.
+     * Añade un producto al carrito.
      */
-    public function add(Book $book)
+    public function add(Request $request)
     {
-        // Buscamos o creamos el carrito para el usuario actual
-        $cart = Cart::firstOrCreate(
-            ['user_id' => Auth::id()],
-            ['last_activity' => now()]
-        );
-
-        // Verificamos si el libro ya está en el carrito para evitar duplicados (opcional, según lógica de negocio)
-        $exists = CartItem::where('cart_id', $cart->id)
-            ->where('book_id', $book->id)
-            ->exists();
-
-        if ($exists) {
-            return redirect()->back()->with('info', 'Este libro ya está en tu carrito.');
-        }
-
-        // Creamos el nuevo ítem en el carrito
-        CartItem::create([
-            'cart_id' => $cart->id,
-            'book_id' => $book->id,
+        $request->validate([
+            'sellable_id' => 'required|integer',
+            'sellable_type' => 'required|string',
         ]);
 
-        // Actualizamos la actividad del carrito
-        $cart->update(['last_activity' => now()]);
+        if (Auth::check()) {
+            // Lógica BD
+            $cart = Cart::firstOrCreate(['user_id' => Auth::id()], ['last_activity' => now()]);
+            $exists = CartItem::where('cart_id', $cart->id)
+                ->where('sellable_id', $request->sellable_id)
+                ->where('sellable_type', $request->sellable_type)
+                ->exists();
 
-        return redirect()->route('cart.index')->with('success', 'Libro añadido al carrito correctamente.');
+            if ($exists) {
+                return redirect()->back()->with('info', 'Este producto ya está en tu carrito.');
+            }
+
+            CartItem::create([
+                'cart_id' => $cart->id,
+                'sellable_id' => $request->sellable_id,
+                'sellable_type' => $request->sellable_type,
+            ]);
+            $cart->update(['last_activity' => now()]);
+        } else {
+            // Lógica Sesión
+            $cart = session()->get('cart', []);
+            
+            // Verificar si ya existe
+            foreach ($cart as $item) {
+                if ($item['sellable_id'] == $request->sellable_id && $item['sellable_type'] == $request->sellable_type) {
+                    return redirect()->back()->with('info', 'Este producto ya está en tu carrito.');
+                }
+            }
+
+            $cart[] = [
+                'sellable_id' => $request->sellable_id,
+                'sellable_type' => $request->sellable_type,
+            ];
+
+            session()->put('cart', $cart);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Producto añadido al carrito correctamente.');
     }
 
     /**
      * Elimina un ítem específico del carrito.
      */
-    public function remove(CartItem $cartItem)
+    public function remove($id, Request $request) // Cambio de TypeHinting para aceptar ID de sesión o BD
     {
-        // Verificamos que el ítem pertenezca al carrito del usuario autenticado
-        if ($cartItem->cart->user_id !== Auth::id()) {
-            abort(403);
+        if (Auth::check()) {
+            $cartItem = CartItem::findOrFail($id);
+            if ($cartItem->cart->user_id !== Auth::id()) {
+                abort(403);
+            }
+            $cartItem->delete();
+        } else {
+            $cart = session()->get('cart', []);
+            if (isset($cart[$id])) {
+                unset($cart[$id]);
+                session()->put('cart', $cart);
+            }
         }
 
-        $cartItem->delete();
-
-        return redirect()->back()->with('success', 'Libro eliminado del carrito.');
+        return redirect()->back()->with('success', 'Producto eliminado del carrito.');
     }
 
     /**
-     * Vacía todo el carrito del usuario.
+     * Vacía todo el carrito.
      */
     public function clear()
     {
-        $cart = Cart::where('user_id', Auth::id())->first();
-
-        if ($cart) {
-            $cart->cartItems()->delete();
+        if (Auth::check()) {
+            $cart = Cart::where('user_id', Auth::id())->first();
+            if ($cart) {
+                $cart->cartItems()->delete();
+            }
+        } else {
+            session()->forget('cart');
         }
 
         return redirect()->back()->with('success', 'Carrito vaciado correctamente.');

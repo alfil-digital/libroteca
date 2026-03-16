@@ -29,6 +29,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Fusionar el carrito de invitado con el de usuario
+        \App\Models\Cart::mergeSessionCart(Auth::id());
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

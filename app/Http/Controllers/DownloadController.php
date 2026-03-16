@@ -21,7 +21,8 @@ class DownloadController extends Controller
             $query->where('user_id', Auth::id())
                 ->where('status', 'Completed');
         })
-            ->where('book_id', $book->id)
+            ->where('sellable_id', $book->id)
+            ->where('sellable_type', Book::class)
             ->exists();
 
         // Si no lo compró, denegar

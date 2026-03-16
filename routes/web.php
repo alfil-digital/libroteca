@@ -77,32 +77,40 @@ Route::middleware('auth')->group(function () {
     // Ruta para eliminar la cuenta del perfil
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Rutas de recurso para la gestión administrativa de usuarios (CRUD completo)
-    Route::resource('users', UserController::class);
+    // --- PANEL DE ADMINISTRACIÓN ---
+    Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+        // Dashboard Administrativo
+        Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Rutas de recurso para la gestión administrativa de roles (CRUD completo)
-    Route::resource('roles', RolController::class);
+        // Rutas de recurso para la gestión administrativa (ABMs)
+        Route::resource('users', UserController::class);
+        Route::resource('roles', RolController::class);
+        Route::resource('authors', \App\Http\Controllers\AuthorController::class);
+        Route::resource('books', BookController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::resource('courses', \App\Http\Controllers\CourseController::class);
+    });
 
-    // Rutas de recurso para la gestión administrativa de libros (CRUD completo)
-    Route::resource('books', BookController::class);
-
-    // Rutas de recurso para la gestión de categorías (CRUD completo)
-    Route::resource('categories', CategoryController::class);
-
-    // Rutas del Carrito de Compras
-    Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/carrito/añadir/{book}', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/carrito/eliminar/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/carrito/vaciar', [CartController::class, 'clear'])->name('cart.clear');
-
+    // --- RUTAS DE TIENDA Y USUARIO ---
     // Rutas de Pedidos (Compras)
     Route::get('/mis-compras', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/mis-compras/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/finalizar-compra', [OrderController::class, 'store'])->name('orders.store');
 
-    // Rutas de Descarga Segura
+    // Rutas de Descarga y Visualización
     Route::get('/descargar/{book}', [DownloadController::class, 'download'])->name('download.book');
+    Route::get('/cursos/{course}/watch', [\App\Http\Controllers\CourseController::class, 'watch'])->name('courses.watch');
+    Route::get('/autor/{author}', [\App\Http\Controllers\AuthorController::class, 'show'])->name('authors.show_public');
+
+    // Rutas de Valoraciones
+    Route::post('/valorar', [\App\Http\Controllers\RatingController::class, 'store'])->name('ratings.store');
 });
+
+// --- RUTAS PÚBLICAS DEL CARRITO ---
+Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
+Route::post('/carrito/añadir', [CartController::class, 'add'])->name('cart.add');
+Route::delete('/carrito/eliminar/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/carrito/vaciar', [CartController::class, 'clear'])->name('cart.clear');
 
 // Importa las rutas de autenticación por defecto de Laravel
 require __DIR__ . '/auth.php';

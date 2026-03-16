@@ -32,4 +32,39 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class); // El carrito contiene múltiples ítems o libros
     }
+    /**
+     * Fusiona el carrito de sesión con el carrito de la base de datos de un usuario.
+     */
+    public static function mergeSessionCart($userId)
+    {
+        $sessionCart = session()->get('cart', []);
+        
+        if (empty($sessionCart)) {
+            return;
+        }
+
+        $cart = self::firstOrCreate(
+            ['user_id' => $userId],
+            ['last_activity' => now()]
+        );
+
+        foreach ($sessionCart as $item) {
+            // Verificar si el ítem ya existe en el carrito de la BD para evitar duplicados
+            $exists = CartItem::where('cart_id', $cart->id)
+                ->where('sellable_id', $item['sellable_id'])
+                ->where('sellable_type', $item['sellable_type'])
+                ->exists();
+
+            if (!$exists) {
+                CartItem::create([
+                    'cart_id' => $cart->id,
+                    'sellable_id' => $item['sellable_id'],
+                    'sellable_type' => $item['sellable_type'],
+                ]);
+            }
+        }
+
+        // Limpiar el carrito de la sesión después de la fusión
+        session()->forget('cart');
+    }
 }
