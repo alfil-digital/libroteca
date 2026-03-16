@@ -25,6 +25,14 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+Route::get('/setup', function () {
+    // Crear el enlace simbólico del storage
+    Artisan::call('storage:link');
+    // Correr migraciones por si acaso
+    //Artisan::call('migrate --force');
+    return "Storage link creado.-";
+});
+
 // Ruta del dashboard, protegida por autenticación y verificación de email
 Route::get('/catalogo', [DashboardController::class, 'index'])
     ->name('dashboard');
