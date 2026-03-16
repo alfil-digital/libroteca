@@ -79,13 +79,13 @@ Route::get('/ver-portada/{filename}', function ($filename) {
 })->name('view.cover');
 
 // Ruta para descargar los Libros (PDF/EPUB)
-Route::get('/descargar-libro/{filename}', function ($filename) {
-    $path = 'books/' . $filename;
-    if (!Storage::disk('public')->exists($path))
-        abort(404);
+// Route::get('/descargar-libro/{filename}', function ($filename) {
+//     $path = 'books/' . $filename;
+//     if (!Storage::disk('public')->exists($path))
+//         abort(404);
 
-    return Storage::disk('public')->download($path);
-})->name('download.book');
+//     return Storage::disk('public')->download($path);
+// })->name('download.book');
 
 // Ruta del dashboard, protegida por autenticación y verificación de email
 Route::get('/catalogo', [DashboardController::class, 'index'])
