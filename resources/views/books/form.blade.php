@@ -104,7 +104,7 @@
                 class="form-control @error('cover_image') is-invalid @enderror" accept="image/*">
             @if(isset($book) && $book->cover_path)
                 <div class="mt-2 text-center border p-2 rounded bg-light" style="max-width: 200px;">
-                    <img src="{{ asset('storage/' . $book->cover_path) }}" alt="Portada actual"
+                    <img src="{{ route('view.cover', ['filename' => $book->cover_path]) }}" alt="Portada actual"
                         class="img-fluid rounded shadow-sm">
                     <div class="small text-muted mt-1">Portada actual</div>
                 </div>

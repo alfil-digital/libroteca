@@ -44,7 +44,7 @@
                                 <td>{{ $book->id }}</td>
                                 <td>
                                     @if($book->cover_path)
-                                        <img src="{{ asset('storage/' . $book->cover_path) }}" alt="Portada"
+                                        <img src="{{ route('view.cover', ['filename' => $book->cover_path]) }}" alt="Portada"
                                             class="rounded shadow-sm" style="width: 40px; height: 55px; object-fit: cover;">
                                     @else
                                         <div class="bg-light rounded d-flex align-items-center justify-content-center border"
@@ -67,7 +67,7 @@
                                 <!-- Botones de acción -->
                                 <td class="text-end pe-4">
                                     @if($book->file_path)
-                                        <a href="{{ asset('storage/' . $book->file_path) }}" target="_blank"
+                                        <a href="{{ route('download.book', ['filename' => $book->file_path]) }}" target="_blank"
                                             class="btn btn-outline-info btn-sm me-2" title="Ver archivo digital">
                                             <i class="bi bi-eye"></i> Ver
                                         </a>

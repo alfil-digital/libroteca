@@ -74,8 +74,8 @@
                                     <div class="bg-light text-center rounded-top overflow-hidden d-flex align-items-center justify-content-center"
                                         style="height: 220px;">
                                         @if($book->cover_path)
-                                            <img src="{{ asset('storage/' . $book->cover_path) }}" alt="{{ $book->title }}"
-                                                class="w-100 h-100 object-fit-cover shadow-sm">
+                                            <img src="{{ route('view.cover', ['filename' => $book->cover_path]) }}"
+                                                alt="{{ $book->title }}" class="w-100 h-100 object-fit-cover shadow-sm">
                                         @else
                                             <i class="bi bi-book text-muted display-4"></i>
                                         @endif

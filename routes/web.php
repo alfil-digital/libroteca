@@ -11,6 +11,10 @@ use App\Http\Controllers\CategoryController; // Importa el controlador de catego
 use App\Http\Controllers\ProfileController; // Importa el controlador de perfiles
 use Illuminate\Support\Facades\Route; // Importa la fachada de rutas
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\File;
 /*
 |--------------------------------------------------------------------------
 | Rutas Web
@@ -25,8 +29,6 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
 
 Route::get('/setup', function () {
     try {
@@ -64,6 +66,26 @@ Route::get('/setup', function () {
 Route::get('/test', function () {
     return "Test";
 });
+
+// Ruta para ver las Portadas
+Route::get('/ver-portada/{filename}', function ($filename) {
+    $path = 'covers/' . $filename;
+    if (!Storage::disk('public')->exists($path))
+        abort(404);
+
+    $file = Storage::disk('public')->get($path);
+    $type = Storage::disk('public')->mimeType($path);
+    return Response::make($file, 200)->header("Content-Type", $type);
+})->name('view.cover');
+
+// Ruta para descargar los Libros (PDF/EPUB)
+Route::get('/descargar-libro/{filename}', function ($filename) {
+    $path = 'books/' . $filename;
+    if (!Storage::disk('public')->exists($path))
+        abort(404);
+
+    return Storage::disk('public')->download($path);
+})->name('download.book');
 
 // Ruta del dashboard, protegida por autenticación y verificación de email
 Route::get('/catalogo', [DashboardController::class, 'index'])
