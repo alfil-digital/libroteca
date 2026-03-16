@@ -66,12 +66,12 @@
 
                                 <!-- Botones de acción -->
                                 <td class="text-end pe-4">
-                                    @if($book->file_path)
-                                        <a href="{{ route('download.book', ['filename' => $book->file_path]) }}" target="_blank"
-                                            class="btn btn-outline-info btn-sm me-2" title="Ver archivo digital">
-                                            <i class="bi bi-eye"></i> Ver
-                                        </a>
-                                    @endif
+                                    <!-- @if($book->file_path)
+                                                                            <a href="{{ route('download.book', ['filename' => $book->file_path]) }}" target="_blank"
+                                                                                class="btn btn-outline-info btn-sm me-2" title="Ver archivo digital">
+                                                                                <i class="bi bi-eye"></i> Ver
+                                                                            </a>
+                                                                        @endif -->
 
                                     <!-- Botón: Añadir al Carrito -->
                                     <form action="{{ route('cart.add', $book) }}" method="POST" class="d-inline">
