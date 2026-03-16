@@ -25,12 +25,40 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+
 Route::get('/setup', function () {
-    // Crear el enlace simbólico del storage
-    Artisan::call('storage:link');
-    // Correr migraciones por si acaso
-    //Artisan::call('migrate --force');
-    return "Storage link creado.-";
+    try {
+
+        // 2. Crear enlace simbólico manualmente si falla el comando artisan
+        $target = storage_path('app/public');
+        $shortcut = public_path('storage');
+
+        if (file_exists($shortcut)) {
+            // Si ya existe algo ahí, lo borramos para recrearlo
+            if (is_link($shortcut)) {
+                app()->make('files')->delete($shortcut);
+            } else {
+                File::deleteDirectory($shortcut);
+            }
+        }
+
+        // Intentamos el comando oficial
+        Artisan::call('storage:link');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Sistema configurado',
+            'storage_link' => file_exists($shortcut) ? 'Creado correctamente' : 'No se pudo crear'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
 });
 
 Route::get('/test', function () {
