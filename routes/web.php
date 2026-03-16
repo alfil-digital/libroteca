@@ -33,6 +33,10 @@ Route::get('/setup', function () {
     return "Storage link creado.-";
 });
 
+Route::get('/test', function () {
+    return "Test";
+});
+
 // Ruta del dashboard, protegida por autenticación y verificación de email
 Route::get('/catalogo', [DashboardController::class, 'index'])
     ->name('dashboard');
