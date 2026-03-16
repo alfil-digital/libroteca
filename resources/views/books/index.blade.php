@@ -28,7 +28,6 @@
                     <thead class="table-light"> <!-- Títulos de la tabla con fondo gris claro -->
                         <tr>
                             <th>ID</th>
-                            <th>Portada</th>
                             <th class="ps-4">Título</th> <!-- Columna de nombre -->
                             <th class="ps-4">Autor</th> <!-- Columna de nombre -->
                             <th class="ps-4">ISBN</th> <!-- Columna de nombre -->
@@ -42,17 +41,6 @@
                         @foreach($books as $book) <!-- Recorre cada usuario de la base de datos -->
                             <tr>
                                 <td>{{ $book->id }}</td>
-                                <td>
-                                    @if($book->cover_path)
-                                        <img src="{{ route('view.cover', ['filename' => $book->cover_path]) }}" alt="Portada"
-                                            class="rounded shadow-sm" style="width: 40px; height: 55px; object-fit: cover;">
-                                    @else
-                                        <div class="bg-light rounded d-flex align-items-center justify-content-center border"
-                                            style="width: 40px; height: 55px;">
-                                            <i class="bi bi-book text-muted small"></i>
-                                        </div>
-                                    @endif
-                                </td>
                                 <td class="ps-4 fw-medium text-dark">{{ $book->title }}</td>
                                 <td class="ps-4 text-secondary">{{ $book->author->name ?? 'Sin autor' }}</td>
                                 <td class="ps-4">{{ $book->isbn }}</td>
@@ -66,6 +54,12 @@
 
                                 <!-- Botones de acción -->
                                 <td class="text-end pe-4">
+                                    @if($book->file_path)
+                                        <a href="{{ asset('storage/' . $book->file_path) }}" target="_blank"
+                                            class="btn btn-outline-info btn-sm me-2" title="Ver archivo digital">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                    @endif
 
                                     <!-- Botón: Añadir al Carrito -->
                                     <form action="{{ route('cart.add', $book) }}" method="POST" class="d-inline">
