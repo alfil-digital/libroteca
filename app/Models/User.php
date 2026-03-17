@@ -69,11 +69,45 @@ class User extends Authenticatable
     {
         return $this->orders()
             ->whereHas('orderItems', function ($query) use ($course) {
-                // Filtramos aquellos orderItems polimórficos que apuntan a nuestro curso
                 $query->where('sellable_type', Course::class)
                       ->where('sellable_id', $course->id);
             })
-            // Podrías añadir condiciones como: ->where('status', 'completed')
+            ->where('status', 'Completed')
+            ->exists();
+    }
+
+    /**
+     * Verifica si el usuario ha comprado un libro específico.
+     * 
+     * @param \App\Models\Book $book
+     * @return bool
+     */
+    public function hasPurchasedBook(Book $book): bool
+    {
+        return $this->orders()
+            ->whereHas('orderItems', function ($query) use ($book) {
+                $query->where('sellable_type', Book::class)
+                      ->where('sellable_id', $book->id);
+            })
+            ->where('status', 'Completed')
+            ->exists();
+    }
+
+    /**
+     * Verifica si el usuario ha comprado al menos un producto de un autor específico.
+     * Útil para validar valoraciones de autores.
+     */
+    public function hasPurchasedFromAuthor(Author $author): bool
+    {
+        return $this->orders()
+            ->whereHas('orderItems', function ($query) use ($author) {
+                $query->where(function($q) use ($author) {
+                    $q->whereHasMorph('sellable', [Book::class, Course::class], function($subQ) use ($author) {
+                        $subQ->where('author_id', $author->id);
+                    });
+                });
+            })
+            ->where('status', 'Completed')
             ->exists();
     }
 

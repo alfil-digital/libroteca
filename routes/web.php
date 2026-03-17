@@ -100,17 +100,20 @@ Route::middleware('auth')->group(function () {
     // Rutas de Descarga y Visualización
     Route::get('/descargar/{book}', [DownloadController::class, 'download'])->name('download.book');
     Route::get('/cursos/{course}/watch', [\App\Http\Controllers\CourseController::class, 'watch'])->name('courses.watch');
-    Route::get('/autor/{author}', [\App\Http\Controllers\AuthorController::class, 'show'])->name('authors.show_public');
-
     // Rutas de Valoraciones
     Route::post('/valorar', [\App\Http\Controllers\RatingController::class, 'store'])->name('ratings.store');
 });
 
-// --- RUTAS PÚBLICAS DEL CARRITO ---
+// --- RUTAS PÚBLICAS DEL CARRITO Y CONTENIDO ---
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
 Route::post('/carrito/añadir', [CartController::class, 'add'])->name('cart.add');
 Route::delete('/carrito/eliminar/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/carrito/vaciar', [CartController::class, 'clear'])->name('cart.clear');
+
+// Detalles Públicos
+Route::get('/libros/{book}', [BookController::class, 'show'])->name('books.show_public');
+Route::get('/cursos/{course}', [\App\Http\Controllers\CourseController::class, 'show'])->name('courses.show_public');
+Route::get('/autor/{author}', [\App\Http\Controllers\AuthorController::class, 'show'])->name('authors.show_public');
 
 // Importa las rutas de autenticación por defecto de Laravel
 require __DIR__ . '/auth.php';

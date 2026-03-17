@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Layout principal -->
+<x-admin-layout> <!-- Layout principal -->
     <x-slot name="header"> <!-- Título de la página -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Nueva Categoría') }} <!-- Título en español -->
@@ -17,4 +17,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

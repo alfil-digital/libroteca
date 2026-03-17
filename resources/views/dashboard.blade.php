@@ -69,7 +69,7 @@
                                 $typeLabel = $isBook ? 'Libro' : 'Curso en Video';
                                 $typeClass = $isBook ? 'bg-secondary' : 'bg-primary';
                                 $iconClass = $isBook ? 'bi-book' : 'bi-play-btn';
-                                $detailRoute = $isBook ? route('books.show', $item) : route('courses.show', $item);
+                                $detailRoute = $isBook ? route('books.show_public', $item) : route('courses.show_public', $item);
                             @endphp
                             <div class="col">
                                 <div class="card h-100 shadow-sm border-0 card-hover transition">

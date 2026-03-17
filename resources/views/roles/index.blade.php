@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Utiliza el componente lateral de diseño de la aplicación -->
+<x-admin-layout> <!-- Utiliza el componente lateral de diseño de la aplicación -->
     <x-slot name="header"> <!-- Define el contenido para la sección de cabecera -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Gestión de Roles') }} <!-- Título principal de la página -->
@@ -70,4 +70,4 @@
             </div>
         @endif
     </div>
-</x-app-layout>
+</x-admin-layout>

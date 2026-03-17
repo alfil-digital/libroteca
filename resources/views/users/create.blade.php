@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Usa el diseño base -->
+<x-admin-layout> <!-- Usa el diseño base -->
     <x-slot name="header"> <!-- Título para el encabezado de navegación -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Registrar Nuevo Usuario') }} <!-- Nombre de la acción en español -->
@@ -13,4 +13,4 @@
             @include('users.form') <!-- Inserta el formulario compartido centrado en la tarjeta -->
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

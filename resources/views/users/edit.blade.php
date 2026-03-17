@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Usa el diseño base -->
+<x-admin-layout> <!-- Usa el diseño base -->
     <x-slot name="header"> <!-- Título para el encabezado de navegación -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Modificar Usuario') }} <!-- Título de la sección de edición -->
@@ -14,4 +14,4 @@
             @include('users.form') <!-- Reutiliza el componente de formulario con los datos del usuario -->
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

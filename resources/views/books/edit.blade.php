@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Perímetro de diseño de la aplicación -->
+<x-admin-layout> <!-- Perímetro de diseño de la aplicación -->
     <x-slot name="header"> <!-- Sección de título -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Editar Libro Existente') }} <!-- Título de edición -->
@@ -17,4 +17,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

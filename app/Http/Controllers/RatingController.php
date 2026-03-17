@@ -31,12 +31,7 @@ class RatingController extends Controller
 
         // Si es un libro o curso, validar que el usuario lo haya comprado
         if ($rateableType === Book::class) {
-            $hasPurchased = $user->orders()->whereHas('orderItems', function ($query) use ($rateableId) {
-                $query->where('sellable_id', $rateableId)
-                      ->where('sellable_type', Book::class);
-            })->where('status', 'Completed')->exists();
-
-            if (!$hasPurchased) {
+            if (!$user->hasPurchasedBook($model)) {
                 return back()->with('error', 'Debes comprar este libro antes de poder valorarlo.');
             }
         }
@@ -48,12 +43,7 @@ class RatingController extends Controller
         }
 
         if ($rateableType === Author::class) {
-            // Validar que haya comprado al menos UN libro o curso de este autor
-            $hasPurchasedProduct = $user->orders()->whereHas('orderItems.sellable', function ($query) use ($rateableId) {
-                $query->where('author_id', $rateableId);
-            })->where('status', 'Completed')->exists();
-
-            if (!$hasPurchasedProduct) {
+            if (!$user->hasPurchasedFromAuthor($model)) {
                 return back()->with('error', 'Debes haber adquirido al menos un producto de este autor para poder valorarlo.');
             }
         }

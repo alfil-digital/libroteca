@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Estructura común de la aplicación -->
+<x-admin-layout> <!-- Estructura común de la aplicación -->
     <x-slot name="header"> <!-- Encabezado de la página -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Nuevo Rol de Usuario') }} <!-- Título en español -->
@@ -17,4 +17,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

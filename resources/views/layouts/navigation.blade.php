@@ -20,30 +20,21 @@
             <!-- Enlaces de Navegación Izquierda -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold border-bottom border-primary' : '' }}"
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}"
                         href="{{ route('dashboard') }}">
                         <i class="bi bi-shop me-1"></i> {{ __('Catálogo') }}
                     </a>
                 </li>
-                
-                @if(auth()->check() && auth()->user()->hasRole('administrador'))
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
-                        href="{{ route('admin.dashboard') }}">
-                        <i class="bi bi-speedometer2 me-1"></i> {{ __('Administración') }}
-                    </a>
-                </li>
-                @endif
 
                 <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('cart.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('cart.*') ? 'active fw-bold' : '' }}"
                         href="{{ route('cart.index') }}">
                         <i class="bi bi-cart3 me-1"></i>
                         {{ __('Carrito') }}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('orders.*') ? 'active fw-bold border-bottom border-primary' : '' }}"
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('orders.*') ? 'active fw-bold' : '' }}"
                         href="{{ route('orders.index') }}">
                         <i class="bi bi-bag-check me-1"></i>
                         {{ __('Mis Compras') }}
@@ -60,6 +51,14 @@
                             {{ Auth::user()->name }} <!-- Muestra el nombre del usuario autenticado -->
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarDropdown">
+                            @if(auth()->user()->hasRole('administrador'))
+                                <li>
+                                    <a class="dropdown-item fw-bold text-primary" href="{{ route('admin.dashboard') }}">
+                                        <i class="bi bi-speedometer2 me-1"></i> {{ __('Panel Admin') }}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            @endif
                             <li>
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
                                     {{ __('Mi Perfil') }} <!-- Enlace para editar el perfil propio -->

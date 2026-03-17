@@ -128,6 +128,12 @@
                                     <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
                                 </button>
                             </form>
+
+                            @guest
+                                <div class="text-center mt-3">
+                                    <p class="small text-muted mb-0">¿Ya lo compraste? <a href="{{ route('login') }}" class="fw-bold text-decoration-none">Inicia sesión</a></p>
+                                </div>
+                            @endguest
                         @endif
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
         <h2 class="h4 mb-0 text-dark">
             <a href="{{ route('authors.index') }}" class="text-decoration-none text-secondary me-2">
@@ -66,4 +66,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

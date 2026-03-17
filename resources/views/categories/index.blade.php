@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Estructura común de la aplicación -->
+<x-admin-layout> <!-- Estructura común de la aplicación -->
     <x-slot name="header"> <!-- Define el contenido para el encabezado -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Gestión de Categorías / Géneros') }} <!-- Título principal -->
@@ -71,4 +71,4 @@
             </div>
         @endif
     </div>
-</x-app-layout>
+</x-admin-layout>

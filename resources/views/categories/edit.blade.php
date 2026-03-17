@@ -1,4 +1,4 @@
-<x-app-layout> <!-- Estructura común -->
+<x-admin-layout> <!-- Estructura común -->
     <x-slot name="header"> <!-- Encabezado con título -->
         <h2 class="h4 mb-0 text-dark">
             {{ __('Editar Categoría') }} <!-- Título dinámico -->
@@ -18,4 +18,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

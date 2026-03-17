@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
         <h2 class="h4 font-weight-bold mb-0">
             <i class="bi bi-speedometer2 me-2"></i> {{ __('Panel de Control Administrativo') }}
@@ -126,4 +126,4 @@
             background-color: rgba(var(--bs-primary-rgb), 0.05);
         }
     </style>
-</x-app-layout>
+</x-admin-layout>

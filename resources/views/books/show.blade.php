@@ -109,13 +109,7 @@
                             <h4 class="fw-bold mb-4">Opiniones de lectores</h4>
                             
                             @auth
-                                @php
-                                    $hasPurchased = auth()->user()->orders()->whereHas('orderItems', function ($query) use ($book) {
-                                        $query->where('sellable_id', $book->id)->where('sellable_type', 'App\Models\Book');
-                                    })->where('status', 'Completed')->exists();
-                                @endphp
-
-                                @if($hasPurchased)
+                                @if(auth()->user()->hasPurchasedBook($book))
                                     <div class="card border-0 bg-light rounded-4 p-4 mb-4">
                                         <h6 class="fw-bold mb-3">Deja tu valoración</h6>
                                         <form action="{{ route('ratings.store') }}" method="POST">
@@ -140,7 +134,16 @@
                                             <button type="submit" class="btn btn-dark rounded-pill px-4 btn-sm">Enviar reseña</button>
                                         </form>
                                     </div>
+                                @else
+                                    <div class="alert alert-info rounded-4 border-0 small">
+                                        <i class="bi bi-info-circle me-2"></i> Debes comprar este libro para poder valorarlo.
+                                    </div>
                                 @endif
+                            @else
+                                <div class="alert alert-light border rounded-4 text-center py-3 mb-4">
+                                    <p class="mb-2 small text-muted">¿Te gusta este libro? Inicia sesión para dejar tu opinión.</p>
+                                    <a href="{{ route('login') }}" class="btn btn-sm btn-outline-primary rounded-pill px-4">Iniciar Sesión</a>
+                                </div>
                             @endauth
 
                             <div class="reviews-list">

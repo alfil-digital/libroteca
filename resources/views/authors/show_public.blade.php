@@ -71,7 +71,7 @@
                                     <p class="text-success fw-bold mb-0">${{ number_format($book->price, 2) }}</p>
                                 </div>
                                 <div class="card-footer bg-white border-0 p-4 pt-0">
-                                    <a href="{{ route('books.show', $book) }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">Ver Detalles</a>
+                                    <a href="{{ route('books.show_public', $book) }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">Ver Detalles</a>
                                 </div>
                             </div>
                         </div>
@@ -97,7 +97,7 @@
                                     <p class="text-success fw-bold mb-0">${{ number_format($course->price, 2) }}</p>
                                 </div>
                                 <div class="card-footer bg-white border-0 p-4 pt-0">
-                                    <a href="{{ route('courses.show', $course) }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">Ver Detalles</a>
+                                    <a href="{{ route('courses.show_public', $course) }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">Ver Detalles</a>
                                 </div>
                             </div>
                         </div>
@@ -137,13 +137,7 @@
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-3">Valorar al Instructor</h5>
                             @auth
-                                @php
-                                    $canRate = auth()->user()->orders()->whereHas('orderItems.sellable', function ($query) use ($author) {
-                                        $query->where('author_id', $author->id);
-                                    })->where('status', 'Completed')->exists();
-                                @endphp
-
-                                @if($canRate)
+                                @if(auth()->user()->hasPurchasedFromAuthor($author))
                                     <p class="text-muted small mb-4">Tu opinión ayuda a otros alumnos a elegir bien. Gracias por compartir tu experiencia.</p>
                                     <form action="{{ route('ratings.store') }}" method="POST">
                                         @csrf
