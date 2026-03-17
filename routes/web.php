@@ -29,6 +29,10 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+Route::get('/migrate', function () {
+    Artisan::call('migrate');
+    return redirect()->route('dashboard');
+});
 
 Route::get('/setup', function () {
     try {
