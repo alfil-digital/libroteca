@@ -119,5 +119,8 @@ Route::get('/libros/{book}', [BookController::class, 'show'])->name('books.show_
 Route::get('/cursos/{course}', [\App\Http\Controllers\CourseController::class, 'show'])->name('courses.show_public');
 Route::get('/autor/{author}', [\App\Http\Controllers\AuthorController::class, 'show'])->name('authors.show_public');
 
+// Importa las rutas de Mercado Pago
+require __DIR__ . '/mercadopago.php';
+
 // Importa las rutas de autenticación por defecto de Laravel
 require __DIR__ . '/auth.php';
