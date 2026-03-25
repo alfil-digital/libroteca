@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MercadoPagoService;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -40,12 +41,16 @@ class MercadoPagoController extends Controller
             'payer.surname' => 'nullable|string',
             'payer.email' => 'nullable|email',
             'external_reference' => 'nullable|string',
+            'payment_method' => 'nullable|string|in:all,credit_card,rapipago',
         ]);
+
+        $paymentMethod = $request->input('payment_method', 'all');
 
         $preference = $this->mercadoPagoService->createPreference(
             $request->input('items'),
             $request->input('payer', []),
-            $request->input('external_reference', '')
+            $request->input('external_reference', ''),
+            $paymentMethod
         );
 
         if ($preference) {
@@ -70,12 +75,20 @@ class MercadoPagoController extends Controller
         $status = $request->query('status');
         $externalReference = $request->query('external_reference');
 
-        // Aquí puedes procesar el pago exitoso
-        Log::info('Pago exitoso', [
-            'payment_id' => $paymentId,
-            'status' => $status,
-            'external_reference' => $externalReference,
-        ]);
+        // Buscar el pedido por referencia externa
+        $order = Order::where('external_reference', $externalReference)
+            ->with('orderItems.sellable')
+            ->first();
+
+        if (!$order) {
+            Log::warning('Pedido no encontrado en success', ['external_reference' => $externalReference]);
+            return redirect()->route('dashboard')->with('error', 'Pedido no encontrado.');
+        }
+
+        // Verificar que el pedido pertenece al usuario actual
+        if ($order->user_id !== auth()->id()) {
+            return redirect()->route('dashboard')->with('error', 'No tienes permiso para ver este pedido.');
+        }
 
         // Obtener detalles del pago si es necesario
         $payment = null;
@@ -83,7 +96,7 @@ class MercadoPagoController extends Controller
             $payment = $this->mercadoPagoService->getPayment($paymentId);
         }
 
-        return view('mercadopago.success', compact('payment', 'status', 'externalReference'));
+        return view('mercadopago.success', compact('payment', 'status', 'order'));
     }
 
     /**
@@ -94,12 +107,16 @@ class MercadoPagoController extends Controller
         $status = $request->query('status');
         $externalReference = $request->query('external_reference');
 
+        // Buscar el pedido
+        $order = Order::where('external_reference', $externalReference)->first();
+
         Log::warning('Pago fallido', [
             'status' => $status,
             'external_reference' => $externalReference,
+            'order_id' => $order?->id,
         ]);
 
-        return view('mercadopago.failure', compact('status', 'externalReference'));
+        return view('mercadopago.failure', compact('status', 'order'));
     }
 
     /**
@@ -110,12 +127,16 @@ class MercadoPagoController extends Controller
         $status = $request->query('status');
         $externalReference = $request->query('external_reference');
 
+        // Buscar el pedido
+        $order = Order::where('external_reference', $externalReference)->first();
+
         Log::info('Pago pendiente', [
             'status' => $status,
             'external_reference' => $externalReference,
+            'order_id' => $order?->id,
         ]);
 
-        return view('mercadopago.pending', compact('status', 'externalReference'));
+        return view('mercadopago.pending', compact('status', 'order'));
     }
 
     /**

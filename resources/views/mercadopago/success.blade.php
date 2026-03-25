@@ -28,6 +28,53 @@
                     Tu pago ha sido procesado correctamente.
                 </p>
 
+                @if($order)
+                <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-2">Detalles del Pedido</h3>
+                    <dl class="space-y-1">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Número de Pedido:</dt>
+                            <dd class="text-sm font-medium text-gray-900">#{{ $order->id }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Fecha:</dt>
+                            <dd class="text-sm font-medium text-gray-900">{{ $order->order_date->format('d/m/Y H:i') }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Total:</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ number_format($order->total_amount, 2) }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Estado:</dt>
+                            <dd class="text-sm font-medium text-green-600">{{ $order->status }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                @if($order->orderItems->count() > 0)
+                <div class="mt-6 bg-white rounded-lg border p-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Productos Comprados</h3>
+                    <div class="space-y-2">
+                        @foreach($order->orderItems as $item)
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ $item->sellable->title ?? $item->sellable->name ?? 'Producto' }}
+                                </p>
+                                <p class="text-xs text-gray-600">
+                                    {{ $item->sellable_type === 'App\\Models\\Book' ? 'Libro' : 'Curso' }}
+                                </p>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">
+                                ${{ number_format($item->unit_price, 2) }}
+                            </span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+                @endif
+
                 @if($payment)
                 <div class="mt-6 bg-gray-50 rounded-lg p-4">
                     <h3 class="text-sm font-medium text-gray-900 mb-2">Detalles del Pago</h3>
@@ -45,8 +92,8 @@
                             <dd class="text-sm font-medium text-gray-900">${{ number_format($payment['amount'], 2) }}</dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-600">Referencia:</dt>
-                            <dd class="text-sm font-medium text-gray-900">{{ $externalReference }}</dd>
+                            <dt class="text-sm text-gray-600">Método:</dt>
+                            <dd class="text-sm font-medium text-gray-900">{{ $payment['payment_method_id'] ?? 'N/A' }}</dd>
                         </div>
                     </dl>
                 </div>

@@ -90,6 +90,21 @@
                             <div class="badge bg-white text-primary rounded-pill p-2 px-3 fw-bold w-100">
                                 <i class="bi bi-check-circle-fill me-1"></i> Estado: {{ $order->status }}
                             </div>
+                            <div class="badge bg-white text-secondary rounded-pill p-2 px-3 fw-bold w-100 mt-2">
+                                Pago: {{ ucfirst($order->payment_status ?? 'desconocido') }}
+                            </div>
+                            <div class="badge bg-white text-secondary rounded-pill p-2 px-3 fw-bold w-100 mt-2">
+                                Método: {{ ucfirst($order->payment_method ?? 'no definido') }}
+                            </div>
+
+                            @if(!$order->isPaid() && in_array($order->payment_status, ['pending', 'rejected', 'cancelled']))
+                                <form method="POST" action="{{ route('orders.retryPayment', $order) }}" class="mt-3">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning btn-sm w-100 rounded-pill">
+                                        <i class="bi bi-arrow-clockwise me-1"></i> Reintentar Pago
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

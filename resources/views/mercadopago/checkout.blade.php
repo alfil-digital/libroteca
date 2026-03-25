@@ -93,6 +93,16 @@
                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                 </div>
 
+                                <!-- Método de pago -->
+                                <div class="border-t pt-4">
+                                    <label class="block text-sm font-medium text-gray-700">Método de Pago</label>
+                                    <select name="payment_method" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="all">Todos los métodos</option>
+                                        <option value="credit_card">Tarjeta de Crédito</option>
+                                        <option value="rapipago">Rapipago/Pago en Efectivo</option>
+                                    </select>
+                                </div>
+
                                 <!-- Botón de pago -->
                                 <div class="pt-4">
                                     <button type="submit" id="checkout-btn"
@@ -189,8 +199,8 @@
                     for (let i = 0; data[`items[${i}][title]`]; i++) {
                         items.push({
                             title: data[`items[${i}][title]`],
-                            quantity: parseInt(data[`items[${i}][quantity]`]),
-                            unit_price: parseFloat(data[`items[${i}][unit_price]`)
+                            quantity: parseInt(data[`items[${i}][quantity]`], 10),
+                            unit_price: parseFloat(data[`items[${i}][unit_price]`])
                         });
                     }
 
@@ -208,7 +218,8 @@
                                 surname: data['payer[surname]'],
                                 email: data['payer[email]']
                             },
-                            external_reference: data.external_reference
+                            external_reference: data.external_reference,
+                            payment_method: data.payment_method || 'all'
                         })
                     });
 

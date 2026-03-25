@@ -27,6 +27,8 @@
                                     <th class="ps-4">Nº Pedido</th>
                                     <th>Fecha</th>
                                     <th class="text-center">Artículos</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Método</th>
                                     <th class="text-end">Total</th>
                                     <th class="text-center pe-4">Acciones</th>
                                 </tr>
@@ -38,6 +40,29 @@
                                         <td class="text-secondary">{{ $order->order_date }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-info rounded-pill">{{ $order->orderItems->count() }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($order->isPaid())
+                                                <span class="badge bg-success">Pagado</span>
+                                            @elseif($order->payment_status === 'pending')
+                                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                            @else
+                                                <span class="badge bg-danger">{{ ucfirst($order->payment_status) }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">
+                                                @switch($order->payment_method)
+                                                    @case('credit_card')
+                                                        💳 Tarjeta
+                                                        @break
+                                                    @case('rapipago')
+                                                        💰 Rapipago
+                                                        @break
+                                                    @default
+                                                        MP
+                                                @endswitch
+                                            </span>
                                         </td>
                                         <td class="text-end fw-bold text-success">
                                             ${{ number_format($order->total_amount, 2) }}

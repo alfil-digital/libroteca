@@ -28,20 +28,34 @@
                     Tu pago está siendo procesado. Te notificaremos cuando se complete.
                 </p>
 
-                @if($status)
+                @if($order)
                 <div class="mt-6 bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-gray-900 mb-2">Estado del Pago</h3>
+                    <h3 class="text-sm font-medium text-gray-900 mb-2">Información del Pedido</h3>
                     <dl class="space-y-1">
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-600">Estado:</dt>
-                            <dd class="text-sm font-medium text-yellow-600">{{ ucfirst($status) }}</dd>
+                            <dt class="text-sm text-gray-600">Número de Pedido:</dt>
+                            <dd class="text-sm font-medium text-gray-900">#{{ $order->id }}</dd>
                         </div>
-                        @if($externalReference)
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-600">Referencia:</dt>
-                            <dd class="text-sm font-medium text-gray-900">{{ $externalReference }}</dd>
+                            <dt class="text-sm text-gray-600">Estado:</dt>
+                            <dd class="text-sm font-medium text-yellow-600">{{ $order->status }}</dd>
                         </div>
-                        @endif
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Total:</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ number_format($order->total_amount, 2) }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                @endif
+
+                @if($status)
+                <div class="mt-6 bg-yellow-50 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-yellow-900 mb-2">Estado del Pago</h3>
+                    <dl class="space-y-1">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-yellow-600">Estado:</dt>
+                            <dd class="text-sm font-medium text-yellow-900">{{ ucfirst($status) }}</dd>
+                        </div>
                     </dl>
                 </div>
                 @endif

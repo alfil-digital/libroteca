@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\MercadoPagoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,36 +41,42 @@ class OrderController extends Controller
     }
 
     /**
-     * Procesa el carrito actual y lo convierte en un pedido.
+     * Procesa el carrito actual y crea un pedido con pago pendiente.
      */
-    public function store()
+    public function store(Request $request, MercadoPagoService $mercadoPagoService)
     {
+        $request->validate([
+            'payment_method' => 'nullable|string|in:all,credit_card,rapipago',
+        ]);
+
         $cart = Cart::where('user_id', Auth::id())->with('cartItems.sellable')->first();
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
         }
 
+        $paymentMethod = $request->input('payment_method', 'all');
+
         try {
             DB::beginTransaction();
 
             $total = 0;
             foreach ($cart->cartItems as $item) {
-                // $item->sellable gives us either Book or Course
                 if ($item->sellable) {
                     $total += $item->sellable->price;
                 }
             }
 
-            // Crear el Pedido
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'order_date' => now(),
                 'total_amount' => $total,
-                'status' => 'Completed', // Lo marcamos como completado directamente para este ejercicio
+                'status' => Order::STATUS_PENDING,
+                'payment_status' => Order::PAYMENT_PENDING,
+                'external_reference' => 'ORDER-' . time() . '-' . Auth::id(),
+                'payment_method' => $paymentMethod,
             ]);
 
-            // Crear los Ítems del Pedido
             foreach ($cart->cartItems as $item) {
                 if ($item->sellable) {
                     OrderItem::create([
@@ -81,16 +88,77 @@ class OrderController extends Controller
                 }
             }
 
-            // Vaciar el Carrito
-            $cart->cartItems()->delete();
-
             DB::commit();
 
-            return redirect()->route('orders.show', $order)->with('success', '¡Compra realizada con éxito!');
+            $items = $order->getItemsForMercadoPago();
+            $payer = [
+                'name' => Auth::user()->name,
+                'surname' => Auth::user()->surname ?? '',
+                'email' => Auth::user()->email,
+            ];
+
+            $preference = $mercadoPagoService->createPreference(
+                $items,
+                $payer,
+                $order->external_reference,
+                $paymentMethod
+            );
+
+            if ($preference) {
+                
+                \Log::info('MercadoPago preferencia generada', ['order_id' => $order->id, 'preference' => $preference]);
+                $cart->cartItems()->delete();
+                return redirect()->away($preference['init_point']);
+            }
+
+            $order->updatePaymentStatus(Order::PAYMENT_CANCELLED);
+            return redirect()->route('cart.index')->with('error', 'Error al procesar el pago. Por favor, verifica tu configuración de Mercado Pago e intenta de nuevo.');
+
 
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('cart.index')->with('error', 'Hubo un error al procesar tu compra. Por favor, reintenta.');
         }
     }
+
+    /**
+     * Reintentar pago para un pedido existente.
+     */
+    public function retryPayment(Order $order, MercadoPagoService $mercadoPagoService)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($order->isPaid()) {
+            return redirect()->route('orders.show', $order)->with('info', 'El pago de este pedido ya está completado.');
+        }
+
+        $order->external_reference = 'ORDER-' . $order->id . '-' . time();
+        $order->status = Order::STATUS_PENDING;
+        $order->payment_status = Order::PAYMENT_PENDING;
+        $order->save();
+
+        $items = $order->getItemsForMercadoPago();
+        $payer = [
+            'name' => Auth::user()->name,
+            'surname' => Auth::user()->surname ?? '',
+            'email' => Auth::user()->email,
+        ];
+
+        $preference = $mercadoPagoService->createPreference(
+            $items,
+            $payer,
+            $order->external_reference,
+            $order->payment_method ?? 'all'
+        );
+
+        if ($preference) {
+            \Log::info('MercadoPago preferencia regenerada', ['order_id' => $order->id, 'preference' => $preference]);
+            return redirect()->away($preference['init_point']);
+        }
+
+        return redirect()->route('orders.show', $order)->with('error', 'No se pudo volver a generar el pago. Intenta más tarde.');
+    }
+
 }

@@ -94,9 +94,15 @@
                             </a>
                             
                             @auth
-                                <!-- Botón para finalizar la compra (Usuario autenticado) -->
-                                <form action="{{ route('orders.store') }}" method="POST">
+                                <form action="{{ route('orders.store') }}" method="POST" class="d-flex align-items-center gap-2">
                                     @csrf
+
+                                    <select name="payment_method" class="form-select form-select-sm w-auto">
+                                        <option value="all">Todos los métodos</option>
+                                        <option value="credit_card">Tarjeta de Crédito</option>
+                                        <option value="rapipago">Rapipago/Pago en Efectivo</option>
+                                    </select>
+
                                     <button type="submit"
                                         class="btn btn-success rounded-pill px-5 fw-bold shadow-sm shadow-hover">
                                         <i class="bi bi-credit-card me-2"></i> Finalizar Compra

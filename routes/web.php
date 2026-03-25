@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
     // Rutas de Pedidos (Compras)
     Route::get('/mis-compras', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/mis-compras/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/mis-compras/{order}/reintentar-pago', [OrderController::class, 'retryPayment'])->name('orders.retryPayment');
     Route::post('/finalizar-compra', [OrderController::class, 'store'])->name('orders.store');
 
     // Rutas de Descarga y Visualización
