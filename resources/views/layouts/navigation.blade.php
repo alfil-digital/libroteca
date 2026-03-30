@@ -2,7 +2,7 @@
     <!-- Barra de navegación responsiva, fondo blanco y borde inferior -->
     <div class="container"> <!-- Contenedor centrado para alinear el contenido -->
         <!-- Logotipo de la Aplicación -->
-        <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
+        <a class="navbar-brand d-flex align-items-center" href="{{ route('catalogo') }}">
             <x-application-logo class="h-auto" style="width: 36px; fill: currentColor;" />
             <!-- Logo con dimensiones fijas -->
             <span class="ms-2 fw-semibold text-dark">{{ config('app.name', 'Libroteca') }}</span>
@@ -20,8 +20,8 @@
             <!-- Enlaces de Navegación Izquierda -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}"
-                        href="{{ route('dashboard') }}">
+                    <a class="nav-link {{ request()->routeIs('catalogo') ? 'active fw-bold' : '' }}"
+                        href="{{ route('catalogo') }}">
                         <i class="bi bi-shop me-1"></i> {{ __('Catálogo') }}
                     </a>
                 </li>
@@ -53,11 +53,13 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarDropdown">
                             @if(auth()->user()->hasRole('administrador'))
                                 <li>
-                                    <a class="dropdown-item fw-bold text-primary" href="{{ route('admin.dashboard') }}">
+                                    <a class="dropdown-item fw-bold text-primary" href="{{ route('catalogo') }}">
                                         <i class="bi bi-speedometer2 me-1"></i> {{ __('Panel Admin') }}
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                             @endif
                             <li>
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
