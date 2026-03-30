@@ -6,7 +6,7 @@
             </h2>
             <div class="d-flex gap-2">
                 <!-- Buscador rápido -->
-                <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2">
+                <form action="{{ route('catalogo') }}" method="GET" class="d-flex gap-2">
                     <div class="input-group input-group-sm" style="width: 250px;">
                         <input type="text" name="search" class="form-control" placeholder="Buscar libro o autor..."
                             value="{{ request('search') }}">
@@ -15,7 +15,7 @@
                         </button>
                     </div>
                     <!-- @if(request('search') || request('category'))
-                        <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar">
+                        <a href="{{ route('catalogo') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar">
                             <i class="bi bi-x-lg"></i>
                         </a>
                     @endif -->
@@ -33,12 +33,12 @@
                         <h6 class="mb-0 fw-bold"><i class="bi bi-filter me-2"></i> Categorías</h6>
                     </div>
                     <div class="list-group list-group-flush small">
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ route('catalogo') }}"
                             class="list-group-item list-group-item-action {{ !request('category') ? 'active' : '' }}">
                             Todas las Categorías
                         </a>
                         @foreach($categories as $category)
-                            <a href="{{ route('dashboard', ['category' => $category->id] + request()->except('category')) }}"
+                            <a href="{{ route('catalogo', ['category' => $category->id] + request()->except('category')) }}"
                                 class="list-group-item list-group-item-action {{ request('category') == $category->id ? 'active' : '' }}">
                                 {{ $category->name }}
                                 <span class="badge bg-info text-dark float-end rounded-pill border">
@@ -58,7 +58,7 @@
                             <i class="bi bi-box-seam display-1 text-muted"></i>
                             <h4 class="mt-3 text-secondary">No se encontraron productos</h4>
                             <p class="text-muted">Prueba con otros términos de búsqueda o categorías.</p>
-                            <a href="{{ route('dashboard') }}" class="btn btn-primary rounded-pill px-4">Ver todos</a>
+                            <a href="{{ route('catalogo') }}" class="btn btn-primary rounded-pill px-4">Ver todos</a>
                         </div>
                     </div>
                 @else
