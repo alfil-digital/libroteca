@@ -26,12 +26,12 @@ use Illuminate\Support\Facades\File;
 
 // Ruta para la página de inicio que retorna la vista welcome
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return redirect()->route('catalogo');
 });
 
 Route::get('/migrate', function () {
     Artisan::call('migrate');
-    return redirect()->route('dashboard');
+    return redirect()->route('catalogo');
 });
 
 Route::get('/setup', function () {
@@ -70,7 +70,7 @@ Route::get('/setup', function () {
 
 // Ruta del dashboard, protegida por autenticación y verificación de email
 Route::get('/catalogo', [DashboardController::class, 'index'])
-    ->name('dashboard');
+    ->name('catalogo');
 
 // Grupo de rutas que requieren que el usuario esté autenticado
 Route::middleware('auth')->group(function () {

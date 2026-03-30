@@ -32,6 +32,11 @@ class AuthenticatedSessionController extends Controller
         // Fusionar el carrito de invitado con el de usuario
         \App\Models\Cart::mergeSessionCart(Auth::id());
 
+        // Redirigir al catálogo si es admin, si no, a la tienda
+        if (Auth::user()->hasRole('administrador')) {
+            return redirect()->route('catalogo');
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
