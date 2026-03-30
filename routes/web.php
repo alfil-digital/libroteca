@@ -72,6 +72,10 @@ Route::get('/setup', function () {
 Route::get('/catalogo', [DashboardController::class, 'index'])
     ->name('catalogo');
 
+Route::get('/dashboard', function () {
+    return redirect()->route('catalogo');
+})->name('dashboard');
+
 // Grupo de rutas que requieren que el usuario esté autenticado
 Route::middleware('auth')->group(function () {
     // Ruta para mostrar el formulario de edición de perfil
